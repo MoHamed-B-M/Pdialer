@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardin
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.startKoin
+import com.grinch.rivo4.view.onboarding.destinations.MorphingOnboardingScreenDestination
 
 class MainActivity : ComponentActivity() {
 
@@ -55,17 +56,11 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val context = androidx.compose.ui.platform.LocalContext.current
 
-                // ✅ 1. فحص هل هذا هو التشغيل الأول للتطبيق
+                // فحص التشغيل الأول
                 val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
                 val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
 
-                // ✅ 2. تحديد شاشة البداية: إذا كان أول تشغيل نختار الـ Onboarding، وإلا نذهب للوحة الاتصال
-                val startRoute = if (isFirstLaunch) {
-                    MorphingOnboardingScreenDestination
-                } else {
-                    DialPadScreenDestination
-                }
-
+                // تعريف المحرك مع الأنيميشن
                 val navHostEngine = rememberNavHostEngine(
                     rootDefaultAnimations = RootNavGraphDefaultAnimations(
                         enterTransition = {
@@ -78,9 +73,10 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
+                // ✅ التصحيح: تغيير startRoute إلى startDestination
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    startRoute = startRoute, // ✅ استخدام الوجهة الديناميكية
+                    startDestination = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
                     navController = navController,
                     engine = navHostEngine
                 )
@@ -90,7 +86,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

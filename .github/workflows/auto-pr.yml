@@ -1,0 +1,33 @@
+name: Auto Pull Request for All Branches
+
+on:
+  push:
+    branches-ignore:
+      - "main" # سيتم تفعيل الأكشن عند الـ Push على أي فرع ما عدا main
+
+permissions:
+  pull-requests: write # السماح للأكشن بإنشاء PR
+  contents: read
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: auto-sync branch ${{ github.ref_name }} to main"
+          title: "🚀 Branch Update: ${{ github.ref_name }} -> main"
+          body: |
+            This PR was automatically generated for the branch **${{ github.ref_name }}**.
+            - **Commit Hash:** `${{ github.sha }}`
+            - **Author:** ${{ github.actor }}
+
+            This ensures that improvements in **${{ github.ref_name }}** are reviewed and merged into main.
+          branch: ${{ github.ref_name }} # الفرع الحالي الذي تم الدفع عليه
+          base: main # الفرع المستهدف للدمج
+          delete-branch: false # الحفاظ على الفرع بعد الدمج
