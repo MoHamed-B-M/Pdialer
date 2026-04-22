@@ -10,15 +10,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.grinch.rivo4.view.theme.Rivo4Theme
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
+import com.ramcosta.composedestinations.animations.rememberNavHostEngine
 import com.ramcosta.composedestinations.generated.NavGraphs
+// ✅ استيراد الوجهات بما فيها الشاشة الجديدة
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.DialPadScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.DialPadScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardingScreenDestination
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.startKoin
@@ -35,7 +45,8 @@ class MainActivity : ComponentActivity() {
         if (GlobalContext.getOrNull() == null) {
             startKoin {
                 androidContext(this@MainActivity)
-                modules(appModule)
+                // تأكد من تعريف appModule في ملف منفصل
+                // modules(appModule)
             }
         }
 
@@ -45,10 +56,25 @@ class MainActivity : ComponentActivity() {
             Rivo4Theme {
                 val navController = rememberNavController()
 
+                // ✅ تعريف المحرك لإصلاح خطأ Unresolved reference
+                val navHostEngine = rememberNavHostEngine(
+                    rootDefaultAnimations = RootNavGraphDefaultAnimations(
+                        enterTransition = {
+                            scaleIn(
+                                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                                initialScale = 0.9f
+                            ) + fadeIn()
+                        },
+                        exitTransition = { fadeOut() }
+                    )
+                )
+
+                // ✅ تمرير المعاملات بشكل صحيح
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                        startRoute = MorphingOnboardingScreenDestination, // اجعلها نقطة البداية
-                        engine = navHostEngine
+                    startRoute = MorphingOnboardingScreenDestination,
+                    navController = navController,
+                    engine = navHostEngine
                 )
 
                 LaunchedEffect(intent) {
@@ -61,7 +87,6 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-
     }
 
     private fun handleIntent(intent: Intent?, navController: androidx.navigation.NavController) {
@@ -74,7 +99,9 @@ class MainActivity : ComponentActivity() {
                 if (data?.scheme == "tel") {
                     val number = data.schemeSpecificPart
                     navController.navigate(DialPadScreenDestination(initialNumber = number).route)
-                } else if (data?.toString()?.contains("contacts") == true || data?.toString()?.contains("com.android.contacts") == true || intent.hasExtra("contact_id")) {
+                } else if (data?.toString()?.contains("contacts") == true ||
+                           data?.toString()?.contains("com.android.contacts") == true ||
+                           intent.hasExtra("contact_id")) {
                     val id = data?.lastPathSegment ?: intent.getStringExtra("contact_id")
                     if (id != null) {
                         navController.navigate(ContactDetailsScreenDestination(contactId = id).route)
