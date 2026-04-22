@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember // ✅ إضافة remember
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.grinch.rivo4.view.theme.Rivo4Theme
@@ -24,7 +25,6 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberNavHostEngine
 import com.ramcosta.composedestinations.generated.NavGraphs
-// ✅ استيراد الوجهات بما فيها الشاشة الجديدة
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.DialPadScreenDestination
@@ -45,8 +45,6 @@ class MainActivity : ComponentActivity() {
         if (GlobalContext.getOrNull() == null) {
             startKoin {
                 androidContext(this@MainActivity)
-                // تأكد من تعريف appModule في ملف منفصل
-                // modules(appModule)
             }
         }
 
@@ -55,8 +53,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             Rivo4Theme {
                 val navController = rememberNavController()
+                val context = androidx.compose.ui.platform.LocalContext.current
 
-                // ✅ تعريف المحرك لإصلاح خطأ Unresolved reference
+                // ✅ 1. فحص هل هذا هو التشغيل الأول للتطبيق
+                val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
+                val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
+
+                // ✅ 2. تحديد شاشة البداية: إذا كان أول تشغيل نختار الـ Onboarding، وإلا نذهب للوحة الاتصال
+                val startRoute = if (isFirstLaunch) {
+                    MorphingOnboardingScreenDestination
+                } else {
+                    DialPadScreenDestination
+                }
+
                 val navHostEngine = rememberNavHostEngine(
                     rootDefaultAnimations = RootNavGraphDefaultAnimations(
                         enterTransition = {
@@ -69,10 +78,9 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                // ✅ تمرير المعاملات بشكل صحيح
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    startRoute = MorphingOnboardingScreenDestination,
+                    startRoute = startRoute, // ✅ استخدام الوجهة الديناميكية
                     navController = navController,
                     engine = navHostEngine
                 )
