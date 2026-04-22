@@ -44,10 +44,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             Rivo4Theme {
                 val navController = rememberNavController()
-                
+
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    navController = navController
+                        startRoute = MorphingOnboardingScreenDestination, // اجعلها نقطة البداية
+                        engine = navHostEngine
                 )
 
                 LaunchedEffect(intent) {
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        
+
     }
 
     private fun handleIntent(intent: Intent?, navController: androidx.navigation.NavController) {
