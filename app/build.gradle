@@ -5,6 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.0'
     id 'com.google.devtools.ksp' version '2.1.0-1.0.29'
 }
+
 android {
     namespace = 'com.grinch.rivo4'
     compileSdk = 35
@@ -32,19 +33,23 @@ android {
 
     buildTypes {
         release {
+            // ✅ تفعيل تقليل الحجم وحذف الكود غير المستخدم
             minifyEnabled true
+            // ✅ حذف المصادر (Resources) غير المستخدمة لتقليل الحجم أكثر
             shrinkResources true
+
             signingConfig signingConfigs.release
-            debuggable false
+            debuggable = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-
         debug {
+            // تفعيل التحسين في الـ Debug قد يبطئ عملية الـ Build، لذا نتركه معطلاً
             minifyEnabled false
             signingConfig signingConfigs.debug
         }
     }
 
+    // ✅ تحسين توزيع الـ APK بناءً على قدرات الجهاز
     bundle {
         language { enableSplit = true }
         density { enableSplit = true }
@@ -52,40 +57,38 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+
             freeCompilerArgs.addAll(
-                "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                "-opt-in=androidx.compose.material3.ExperimentalMaterial3ExpressiveApi"
+                "-opt-in=androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+                "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
             )
         }
     }
 
     buildFeatures {
-        compose true
+        compose = true
     }
 
     splits {
         abi {
-            enable true
+            enable = true
             reset()
-            include "armeabi-v7a", "arm64-v8a", "x86_64"
-            universalApk true
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            universalApk = true
         }
     }
 }
 
 dependencies {
-
-    // ✅ Compose BOM
+    // البقاء على نفس التبعيات المستقرة لديك
     implementation platform('androidx.compose:compose-bom:2025.12.01')
-
-    // ✅ Compose core
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.material3:material3'
     implementation 'androidx.activity:activity-compose'
@@ -93,39 +96,27 @@ dependencies {
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.material:material-icons-extended'
 
-    // ✅ Debug tools
-    debugImplementation 'androidx.compose.ui:ui-tooling'
-
-    // ✅ Android core
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
 
-    // ✅ Navigation
     implementation 'androidx.navigation:navigation-compose:2.8.5'
-
-    // ✅ Serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 
-    // ✅ Compose Destinations (STABLE)
-    implementation "io.github.raamcosta.compose-destinations:core:1.9.54"
-    ksp "io.github.raamcosta.compose-destinations:ksp:1.9.54"
+    implementation 'io.github.raamcosta.compose-destinations:core:2.1.0'
+    ksp 'io.github.raamcosta.compose-destinations:ksp:2.1.0'
 
-    // ✅ Permissions
     implementation "com.google.accompanist:accompanist-permissions:0.37.3"
 
-    // ✅ Koin
     implementation platform("io.insert-koin:koin-bom:4.1.1")
     implementation "io.insert-koin:koin-android"
     implementation "io.insert-koin:koin-androidx-compose"
 
-    // ✅ Image loading
     implementation "io.coil-kt:coil-compose:2.7.0"
-
-    // ✅ QR / Barcode
     implementation 'com.google.zxing:core:3.5.4'
 
-    // ✅ Testing
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+
+    debugImplementation 'androidx.compose.ui:ui-tooling'
 }
