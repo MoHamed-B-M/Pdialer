@@ -41,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 
 
 data class MorphingPage(
@@ -81,7 +83,7 @@ private val pages = listOf(
 
 @Destination<RootGraph>
 @Composable
-fun MorphingOnboardingScreen(onFinished: () -> Unit) {
+fun MorphingOnboardingScreen(onFinished: () -> Unit = {}) {
     var currentPage by remember { mutableIntStateOf(0) }
 
     val cornerPercent by animateFloatAsState(

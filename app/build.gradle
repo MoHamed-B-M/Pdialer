@@ -87,6 +87,12 @@ android {
 }
 
 dependencies {
+
+    implementation "com.ramcosta.composedestinations:core:2.1.0-beta02"
+    ksp "com.ramcosta.composedestinations:ksp:2.1.0-beta02"
+
+    implementation "com.ramcosta.composedestinations:animations-core:2.1.0-beta02"
+}
     // البقاء على نفس التبعيات المستقرة لديك
     implementation platform('androidx.compose:compose-bom:2025.12.01')
     implementation 'androidx.compose.ui:ui'
