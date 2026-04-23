@@ -27,7 +27,7 @@ import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.DialPadScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardingScreenDestination // ✅ تأكد من صحة المسار المولد
+import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardingScreenDestination
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.startKoin
@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        // تهيئة Koin
         if (GlobalContext.getOrNull() == null) {
             startKoin {
                 androidContext(this@MainActivity)
@@ -54,9 +55,11 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val context = androidx.compose.ui.platform.LocalContext.current
 
+                // إدارة حالة التشغيل الأول
                 val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
                 val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
 
+                // إعداد محرك الأنميشن الخاص بالمكتبة
                 val navHostEngine = rememberNavHostEngine(
                     rootDefaultAnimations = RootNavGraphDefaultAnimations(
                         enterTransition = {
@@ -69,9 +72,10 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
+                // نظام التنقل الرئيسي
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    // ✅ تم التغيير إلى startRoute لأن نسختك 2.1.0 تدعم هذا المسمى
+                    // استخدام startRoute بدلاً من startDestination بناءً على نسخة المكتبة
                     startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
                     navController = navController,
                     engine = navHostEngine
@@ -82,7 +86,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    } // ✅ إغلاق دالة onCreate بشكل صحيح هنا
+    } // ✅ إغلاق دالة onCreate بشكل صحيح
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -131,4 +135,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-} // ✅ إغلاق الكلاس MainActivity
+} // ✅ إغلاق الكلاس MainActivity بشكل نهائي

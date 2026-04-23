@@ -1,4 +1,4 @@
-package com.rejowan.onboardingjc.onboarding.morphing
+package com.grinch.rivo4.view.onboarding
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
