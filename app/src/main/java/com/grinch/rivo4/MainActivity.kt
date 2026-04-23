@@ -52,9 +52,17 @@ class MainActivity : ComponentActivity() {
 
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
                     navController = navController,
                 )
+
+                // Handle dynamic start destination
+                LaunchedEffect(Unit) {
+                    if (isFirstLaunch) {
+                        navController.navigate(MorphingOnboardingScreenDestination.route) {
+                            popUpTo(NavGraphs.root.startRouteId) { inclusive = true }
+                        }
+                    }
+                }
 
                 LaunchedEffect(intent) {
                     handleIntent(intent, navController)
