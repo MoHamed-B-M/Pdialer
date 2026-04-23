@@ -35,9 +35,7 @@ import org.koin.compose.viewmodel.koinActivityViewModel
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(
-    start = true
-)
+@Destination<RootGraph>
 @Composable
 fun ContactScreen(navController: NavController, navigator: DestinationsNavigator) {
     val permState = rememberPermissionState(Manifest.permission.READ_CONTACTS)
