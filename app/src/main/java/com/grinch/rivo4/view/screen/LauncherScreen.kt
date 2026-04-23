@@ -1,5 +1,5 @@
 // File: app/src/main/java/com/grinch/rivo4/view/screen/LauncherScreen.kt
-package com.grinch.rivo4.view.screen  // ✅ Match your actual package
+package com.grinch.rivo4.view.screen
 
 import android.content.Context
 import androidx.compose.foundation.layout.Box
@@ -17,10 +17,10 @@ import com.ramcosta.composedestinations.generated.destinations.DialPadScreenDest
 import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardingScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@Destination<RootGraph>(start = true)  // ✅ ONLY this screen has start = true
+@Destination<RootGraph>(start = true)
 @Composable
 fun LauncherScreen(
-    navigator: DestinationsNavigator,  // ✅ Use DestinationsNavigator
+    navigator: DestinationsNavigator,
 ) {
     val context = LocalContext.current
     val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
@@ -29,18 +29,12 @@ fun LauncherScreen(
         val isFirstLaunch = sharedPref.getBoolean("is_first_launch", true)
 
         if (isFirstLaunch) {
-            // ✅ Simple navigation - NO popUpTo to avoid circular reference
-            navigator.navigate(MorphingOnboardingScreenDestination) {
-                launchSingleTop = true
-                restoreState = false
-            }
+            // ✅ Simple navigation - NO builder lambda to avoid API mismatches
+            navigator.navigate(MorphingOnboardingScreenDestination)
             sharedPref.edit().putBoolean("is_first_launch", false).apply()
         } else {
             // ✅ Navigate to main screen
-            navigator.navigate(DialPadScreenDestination) {
-                launchSingleTop = true
-                restoreState = false
-            }
+            navigator.navigate(DialPadScreenDestination)
         }
     }
 
