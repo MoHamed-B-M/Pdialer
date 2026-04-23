@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read # ✅ ضروري لقراءة بيانات الـ PRs ووضعها في الـ Release Notes
 
 jobs:
   build:
@@ -18,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # ✅ ضروري لجلب تاريخ الـ commits لتوليد الـ changelog
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -44,7 +45,7 @@ jobs:
             echo "release_tag=nightly" >> $GITHUB_OUTPUT
           fi
 
-      # 2. بناء الـ APK (Debug للـ Nightly و Release للـ Tags)
+      # 2. بناء الـ APK
       - name: Build APKs
         run: |
           if [ "${{ steps.meta.outputs.is_tag }}" = "true" ]; then
@@ -59,7 +60,7 @@ jobs:
           mkdir -p outputs
           find . -type f -name "*.apk" ! -path "*/build-cache/*" ! -path "*/intermediates/*" -exec cp {} outputs/ \;
 
-      # 4. النشر (يدعم الحالتين)
+      # 4. النشر مع توليد Release Notes تلقائياً
       - name: Publish Release
         uses: ncipollo/release-action@v1
         with:
@@ -67,12 +68,21 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ steps.meta.outputs.release_name }}
           tag: ${{ steps.meta.outputs.release_tag }}
-          # إذا كان Tag، اجعلها نسخة رسمية، وإذا كان Commit اجعلها Pre-release
           prerelease: ${{ steps.meta.outputs.is_tag != 'true' }}
           allowUpdates: true
           removeArtifacts: true
           replacesArtifacts: true
+          # ✅ الخصائص الجديدة للحصول على شكل الصورة المطلوبة
+          generateReleaseNotes: true
+          makeLatest: ${{ steps.meta.outputs.is_tag == 'true' }}
           body: |
-            ${{ steps.meta.outputs.is_tag == 'true' && 'Official Stable Release' || '🌙 Nightly automated build' }}
-            - Build Time: $(date +'%Y-%m-%d %H:%M')
-            - Commit: ${{ github.sha }}
+            ${{ steps.meta.outputs.is_tag == 'true' && '## 🚀 Official Stable Release' || '## 🌙 Nightly automated build' }}
+
+            **Build Information:**
+            - **Time:** $(date +'%Y-%m-%d %H:%M')
+            - **Commit:** ${{ github.sha }}
+            - **Branch:** ${{ github.ref_name }}
+
+            ---
+            ### 📝 Full Changelog
+            *(See below for the automated list of commits and PRs)*

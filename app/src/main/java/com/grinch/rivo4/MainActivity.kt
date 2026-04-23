@@ -15,9 +15,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember // ✅ إضافة remember
+import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.grinch.rivo4.view.theme.Rivo4Theme
@@ -28,11 +27,10 @@ import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.DialPadScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardingScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MorphingOnboardingScreenDestination // ✅ تأكد من صحة المسار المولد
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.startKoin
-import com.grinch.rivo4.view.onboarding.destinations.MorphingOnboardingScreenDestination
 
 class MainActivity : ComponentActivity() {
 
@@ -56,11 +54,9 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val context = androidx.compose.ui.platform.LocalContext.current
 
-                // فحص التشغيل الأول
                 val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
                 val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
 
-                // تعريف المحرك مع الأنيميشن
                 val navHostEngine = rememberNavHostEngine(
                     rootDefaultAnimations = RootNavGraphDefaultAnimations(
                         enterTransition = {
@@ -73,10 +69,10 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                // ✅ التصحيح: تغيير startRoute إلى startDestination
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    startDestination = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
+                    // ✅ تم التغيير إلى startRoute لأن نسختك 2.1.0 تدعم هذا المسمى
+                    startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
                     navController = navController,
                     engine = navHostEngine
                 )
@@ -86,6 +82,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    } // ✅ إغلاق دالة onCreate بشكل صحيح هنا
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -134,5 +131,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-}
+} // ✅ إغلاق الكلاس MainActivity
