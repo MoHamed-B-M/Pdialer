@@ -23,6 +23,7 @@ import com.grinch.rivo4.view.theme.Rivo4Theme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberNavHostEngine
+// ✅ تصحيح مسارات الاستيراد للملفات المولدة تلقائياً
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
@@ -69,13 +70,14 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                // ✅ تم تغيير startRoute إلى startDestination لحل الخطأ
+                // ✅ تصحيح: استخدام startRoute بدلاً من startDestination بناءً على رسالة الخطأ
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    startDestination = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
-                    navController = navController,
-                    engine = navHostEngine
-                )
+                                        // ✅ استخدام startRoute ليتوافق مع نسخة المكتبة 2.1.0
+                                        startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
+                                        navController = navController,
+                                        engine = navHostEngine
+                                    )
 
                 LaunchedEffect(intent) {
                     handleIntent(intent, navController)

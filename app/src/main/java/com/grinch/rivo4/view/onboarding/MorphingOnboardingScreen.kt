@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+
 data class MorphingPage(
     val icon: ImageVector,
     val title: String,
@@ -78,6 +79,7 @@ private val pages = listOf(
     )
 )
 
+@Destination<RootGraph>
 @Composable
 fun MorphingOnboardingScreen(onFinished: () -> Unit) {
     var currentPage by remember { mutableIntStateOf(0) }
