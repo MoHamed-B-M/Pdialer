@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
                                         // ✅ استخدام startRoute ليتوافق مع نسخة المكتبة 2.1.0
-                                        startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
+                                        startDestination = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
                                         navController = navController,
                                         engine = navHostEngine
                                     )
