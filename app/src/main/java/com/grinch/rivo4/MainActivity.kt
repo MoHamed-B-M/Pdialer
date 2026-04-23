@@ -10,20 +10,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.grinch.rivo4.view.theme.Rivo4Theme
 import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
-import com.ramcosta.composedestinations.animations.rememberNavHostEngine
-// ✅ تصحيح مسارات الاستيراد للملفات المولدة تلقائياً
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ContactDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ContactEditScreenDestination
@@ -58,26 +50,11 @@ class MainActivity : ComponentActivity() {
                 val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
                 val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
 
-                val navHostEngine = rememberNavHostEngine(
-                    rootDefaultAnimations = RootNavGraphDefaultAnimations(
-                        enterTransition = {
-                            scaleIn(
-                                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                                initialScale = 0.9f
-                            ) + fadeIn()
-                        },
-                        exitTransition = { fadeOut() }
-                    )
-                )
-
-                // ✅ تصحيح: استخدام startRoute بدلاً من startDestination بناءً على رسالة الخطأ
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                                        // ✅ استخدام startRoute ليتوافق مع نسخة المكتبة 2.1.0
-                                        startDestination = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
-                                        navController = navController,
-                                        engine = navHostEngine
-                                    )
+                    startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
+                    navController = navController,
+                )
 
                 LaunchedEffect(intent) {
                     handleIntent(intent, navController)
