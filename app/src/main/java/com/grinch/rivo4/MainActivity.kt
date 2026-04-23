@@ -41,7 +41,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // تهيئة Koin
         if (GlobalContext.getOrNull() == null) {
             startKoin {
                 androidContext(this@MainActivity)
@@ -55,11 +54,9 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val context = androidx.compose.ui.platform.LocalContext.current
 
-                // إدارة حالة التشغيل الأول
                 val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
                 val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
 
-                // إعداد محرك الأنميشن الخاص بالمكتبة
                 val navHostEngine = rememberNavHostEngine(
                     rootDefaultAnimations = RootNavGraphDefaultAnimations(
                         enterTransition = {
@@ -72,11 +69,10 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                // نظام التنقل الرئيسي
+                // ✅ تم تغيير startRoute إلى startDestination لحل الخطأ
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
-                    // استخدام startRoute بدلاً من startDestination بناءً على نسخة المكتبة
-                    startRoute = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
+                    startDestination = if (isFirstLaunch) MorphingOnboardingScreenDestination else DialPadScreenDestination,
                     navController = navController,
                     engine = navHostEngine
                 )
@@ -86,7 +82,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    } // ✅ إغلاق دالة onCreate بشكل صحيح
+    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -135,4 +131,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-} // ✅ إغلاق الكلاس MainActivity بشكل نهائي
+}
