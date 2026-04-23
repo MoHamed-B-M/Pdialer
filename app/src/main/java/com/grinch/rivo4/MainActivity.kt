@@ -45,14 +45,31 @@ class MainActivity : ComponentActivity() {
         setContent {
             Rivo4Theme {
                 val navController = rememberNavController()
+                val context = androidx.compose.ui.platform.LocalContext.current
 
-                // ✅ No conditional logic needed - NavGraph starts at LauncherScreen
+                val sharedPref = remember {
+                    context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE)
+                }
+                val isFirstLaunch = remember {
+                    sharedPref.getBoolean("is_first_launch", true)
+                }
+
+                // ✅ NavHost - NO startRoute parameter
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
                     navController = navController,
                 )
 
-                // Only handle external intents
+                // ✅ First-launch onboarding trigger
+                LaunchedEffect(Unit) {
+                    if (isFirstLaunch) {
+                        // ✅ Use .route string for max compatibility
+                        navController.navigate(MorphingOnboardingScreenDestination.route)
+                        sharedPref.edit().putBoolean("is_first_launch", false).apply()
+                    }
+                }
+
+                // ✅ Handle external intents
                 LaunchedEffect(intent) {
                     handleIntent(intent, navController)
                 }
