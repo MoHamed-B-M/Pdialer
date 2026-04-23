@@ -88,13 +88,10 @@ android {
 
 dependencies {
 
-    implementation "com.ramcosta.composedestinations:core:2.1.0-beta02"
-    ksp "com.ramcosta.composedestinations:ksp:2.1.0-beta02"
-
-    implementation "com.ramcosta.composedestinations:animations-core:2.1.0-beta02"
-}
-    // البقاء على نفس التبعيات المستقرة لديك
+    // ✅ Compose BOM
     implementation platform('androidx.compose:compose-bom:2025.12.01')
+
+    // ✅ Compose
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.material3:material3'
     implementation 'androidx.activity:activity-compose'
@@ -102,27 +99,44 @@ dependencies {
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.material:material-icons-extended'
 
+    // ✅ Debug tools
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+
+    // ✅ Core Android
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
 
+    // ✅ Navigation
     implementation 'androidx.navigation:navigation-compose:2.8.5'
+
+    // ✅ Serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 
-    implementation 'io.github.raamcosta.compose-destinations:core:2.1.0'
-    ksp 'io.github.raamcosta.compose-destinations:ksp:2.1.0'
+    // ✅ Compose Destinations (ONLY ONE VERSION)
+    implementation "com.ramcosta.composedestinations:core:2.1.0-beta02"
+    implementation "com.ramcosta.composedestinations:animations-core:2.1.0-beta02"
+    ksp "com.ramcosta.composedestinations:ksp:2.1.0-beta02"
 
+    // ❌ REMOVE THESE (WRONG / DUPLICATE)
+    // implementation 'io.github.raamcosta.compose-destinations:core:2.1.0'
+    // ksp 'io.github.raamcosta.compose-destinations:ksp:2.1.0'
+
+    // ✅ Permissions
     implementation "com.google.accompanist:accompanist-permissions:0.37.3"
 
+    // ✅ Koin
     implementation platform("io.insert-koin:koin-bom:4.1.1")
     implementation "io.insert-koin:koin-android"
     implementation "io.insert-koin:koin-androidx-compose"
 
+    // ✅ Coil
     implementation "io.coil-kt:coil-compose:2.7.0"
+
+    // ✅ ZXing
     implementation 'com.google.zxing:core:3.5.4'
 
+    // ✅ Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-
-    debugImplementation 'androidx.compose.ui:ui-tooling'
 }
