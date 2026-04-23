@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 
         requestDialerRole()
 
-        setContent {
+        etContent {
             Rivo4Theme {
                 val navController = rememberNavController()
                 val context = androidx.compose.ui.platform.LocalContext.current
@@ -55,12 +55,17 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                 )
 
-                // Handle dynamic start destination
+                // Handle dynamic start destination for first launch
                 LaunchedEffect(Unit) {
                     if (isFirstLaunch) {
                         navController.navigate(MorphingOnboardingScreenDestination.route) {
-                            popUpTo(NavGraphs.root.startRouteId) { inclusive = true }
+                            // Use the overload with named parameter for 'inclusive'
+                            popUpTo(DialPadScreenDestination.route, inclusive = true)
+                            launchSingleTop = true
+                            restoreState = false
                         }
+                        // Mark onboarding as completed
+                        sharedPref.edit().putBoolean("is_first_launch", false).apply()
                     }
                 }
 
