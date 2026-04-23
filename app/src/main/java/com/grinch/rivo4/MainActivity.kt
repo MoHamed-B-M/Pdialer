@@ -46,30 +46,13 @@ class MainActivity : ComponentActivity() {
             Rivo4Theme {
                 val navController = rememberNavController()
 
-                // NavHost - NO startRoute parameter
+                // ✅ No conditional logic needed - NavGraph starts at LauncherScreen
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
                     navController = navController,
                 )
 
-                // Handle first-launch onboarding navigation
-                LaunchedEffect(Unit) {
-                    val context = navController.context
-                    val sharedPref = context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE)
-
-                    if (sharedPref.getBoolean("is_first_launch", true)) {
-                        navController.navigate(MorphingOnboardingScreenDestination.route) {
-                            // Use builder lambda syntax for popUpTo
-                            popUpTo(NavGraphs.root.startDestinationId) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                        sharedPref.edit().putBoolean("is_first_launch", false).apply()
-                    }
-                }
-
-                // Handle incoming intents (dial, contacts, etc.)
+                // Only handle external intents
                 LaunchedEffect(intent) {
                     handleIntent(intent, navController)
                 }
