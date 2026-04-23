@@ -42,33 +42,34 @@ class MainActivity : ComponentActivity() {
 
         requestDialerRole()
 
-        etContent {
+        setContent {
             Rivo4Theme {
                 val navController = rememberNavController()
-                val context = androidx.compose.ui.platform.LocalContext.current
 
-                val sharedPref = remember { context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE) }
-                val isFirstLaunch = remember { sharedPref.getBoolean("is_first_launch", true) }
-
+                // NavHost - NO startRoute parameter
                 DestinationsNavHost(
                     navGraph = NavGraphs.root,
                     navController = navController,
                 )
 
-                // Handle dynamic start destination for first launch
+                // Handle first-launch onboarding navigation
                 LaunchedEffect(Unit) {
-                    if (isFirstLaunch) {
+                    val context = navController.context
+                    val sharedPref = context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE)
+
+                    if (sharedPref.getBoolean("is_first_launch", true)) {
                         navController.navigate(MorphingOnboardingScreenDestination.route) {
-                            // Use the overload with named parameter for 'inclusive'
-                            popUpTo(DialPadScreenDestination.route, inclusive = true)
+                            // Use builder lambda syntax for popUpTo
+                            popUpTo(NavGraphs.root.startDestinationId) {
+                                inclusive = true
+                            }
                             launchSingleTop = true
-                            restoreState = false
                         }
-                        // Mark onboarding as completed
                         sharedPref.edit().putBoolean("is_first_launch", false).apply()
                     }
                 }
 
+                // Handle incoming intents (dial, contacts, etc.)
                 LaunchedEffect(intent) {
                     handleIntent(intent, navController)
                 }
