@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.weight  // ✅ Added explicit import
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -83,7 +83,7 @@ private val pages = listOf(
     )
 )
 
-@Destination<RootGraph>  // ✅ Added <RootGraph>
+@Destination<RootGraph>
 @Composable
 fun MorphingOnboardingScreen(
     navigator: DestinationsNavigator
@@ -94,8 +94,8 @@ fun MorphingOnboardingScreen(
     val onFinished = {
         val sharedPref = context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE)
         sharedPref.edit().putBoolean("is_first_launch", false).apply()
-        // ✅ Navigate to main screen when onboarding completes
-        navigator.navigate(DialPadScreenDestination)
+        // ✅ Use .asDirection() for compatible navigation
+        navigator.navigate(DialPadScreenDestination.asDirection())
     }
 
     val cornerPercent by animateFloatAsState(
@@ -136,6 +136,7 @@ fun MorphingOnboardingScreen(
                 modifier = Modifier.fillMaxSize().padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // ✅ Use weight modifier with explicit import
                 Spacer(modifier = Modifier.weight(1f))
 
                 Box(
@@ -173,6 +174,7 @@ fun MorphingOnboardingScreen(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
+                // ✅ Use weight modifier with explicit import
                 Spacer(modifier = Modifier.weight(1f))
 
                 Row(horizontalArrangement = Arrangement.Center) {
@@ -206,7 +208,7 @@ fun MorphingOnboardingScreen(
                     if (currentPage > 0) {
                         TextButton(onClick = { currentPage-- }) { Text("Back") }
                     } else {
-                        Spacer(modifier = Modifier.weight(1f))
+                        Spacer(modifier = Modifier.weight(1f))  // ✅ Explicit weight import
                     }
 
                     Button(
@@ -214,7 +216,7 @@ fun MorphingOnboardingScreen(
                             if (currentPage < pages.size - 1) {
                                 currentPage++
                             } else {
-                                onFinished()  // ✅ This now navigates + saves pref
+                                onFinished()
                             }
                         },
                         shape = RoundedCornerShape(cornerPercent.toInt().coerceIn(10, 50))
