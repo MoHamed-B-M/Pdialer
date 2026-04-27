@@ -56,10 +56,10 @@ import org.koin.compose.viewmodel.koinActivityViewModel
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@Destination<RootGraph>
+@Destination<RootGraph>(start = true)
 @Composable
 fun DialPadScreen(
-    navController: NavController, 
+    navController: NavController,
     navigator: DestinationsNavigator,
     initialNumber: String? = null
 ) {
@@ -72,7 +72,7 @@ fun DialPadScreen(
     val allContacts by contactsVM.allContacts.collectAsState()
     var number by remember { mutableStateOf(initialNumber ?: "") }
     val soundPool = remember { buildDtmfSoundPool(context) }
-    
+
     val t9Enabled = prefs.getBoolean(PreferenceManager.KEY_T9_DIALING, true)
     val speedDialEnabled = prefs.getBoolean(PreferenceManager.KEY_SPEED_DIAL, true)
 

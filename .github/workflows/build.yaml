@@ -1,14 +1,15 @@
-name: Build & Release APK
+name: Build & Release (Official & Nightly)
 
 on:
   push:
     branches:
-      - main
+      - "**"
     tags:
       - "v*"
 
 permissions:
   contents: write
+  pull-requests: read # ✅ ضروري لقراءة بيانات الـ PRs ووضعها في الـ Release Notes
 
 jobs:
   build:
@@ -18,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # ✅ ضروري لجلب تاريخ الـ commits لتوليد الـ changelog
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -30,61 +31,58 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 1. قراءة الـ Changelog بطريقة تضمن وجود نص حتى لو غاب الملف
-      - name: Read Changelog
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: changelog
+      # 1. تحديد نوع الإصدار (Official vs Nightly)
+      - name: Set Release Metadata
+        id: meta
         run: |
-          if [ -f CHANGELOGS.md ]; then
-            echo "body<<EOF" >> $GITHUB_OUTPUT
-            cat CHANGELOGS.md >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+          if [[ ${{ github.ref }} == refs/tags/v* ]]; then
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+            echo "release_name=Pdialer Optimized ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "release_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           else
-            echo "body=Release version ${{ github.ref_name }} - Optimized by Hama" >> $GITHUB_OUTPUT
+            echo "is_tag=false" >> $GITHUB_OUTPUT
+            echo "release_name=Pdialer Nightly - $(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+            echo "release_tag=nightly" >> $GITHUB_OUTPUT
           fi
 
-      # 2. بناء الـ APK (Debug و Release)
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
-
-      - name: Decode Keystore
-        if: startsWith(github.ref, 'refs/tags/v')
+      # 2. بناء الـ APK
+      - name: Build APKs
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
+          if [ "${{ steps.meta.outputs.is_tag }}" = "true" ]; then
+            ./gradlew assembleRelease
+          else
+            ./gradlew assembleDebug
+          fi
 
-      - name: Build Release APK
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
-
-      # 3. تجميع ملفات الـ APK فقط (تجنب الـ Intermediates والـ Bundles)
+      # 3. تجميع الملفات
       - name: Collect APKs
         run: |
           mkdir -p outputs
-          # نلوجو على أي APK ونبعدو على مجلدات الـ cache والـ intermediates
           find . -type f -name "*.apk" ! -path "*/build-cache/*" ! -path "*/intermediates/*" -exec cp {} outputs/ \;
-          echo "Files collected in outputs:"
-          ls outputs
 
-      # 4. رفع الـ Artifacts للـ Action (للاحتياط)
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Pdialer-Build-${{ github.ref_name }}
-          path: outputs/*.apk
-
-      # 5. النشر الرسمي (هنا استعملنا النمط العام *.apk لتفادي خطأ عدم التطابق)
+      # 4. النشر مع توليد Release Notes تلقائياً
       - name: Publish Release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
         with:
           artifacts: "outputs/*.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: "Pdialer Optimized ${{ github.ref_name }}"
-          tag: ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.body }}
+          name: ${{ steps.meta.outputs.release_name }}
+          tag: ${{ steps.meta.outputs.release_tag }}
+          prerelease: ${{ steps.meta.outputs.is_tag != 'true' }}
           allowUpdates: true
-          removeArtifacts: false
+          removeArtifacts: true
+          replacesArtifacts: true
+          # ✅ الخصائص الجديدة للحصول على شكل الصورة المطلوبة
+          generateReleaseNotes: true
+          makeLatest: ${{ steps.meta.outputs.is_tag == 'true' }}
+          body: |
+            ${{ steps.meta.outputs.is_tag == 'true' && '## 🚀 Official Stable Release' || '## 🌙 Nightly automated build' }}
+
+            **Build Information:**
+            - **Time:** $(date +'%Y-%m-%d %H:%M')
+            - **Commit:** ${{ github.sha }}
+            - **Branch:** ${{ github.ref_name }}
+
+            ---
+            ### 📝 Full Changelog
+            *(See below for the automated list of commits and PRs)*
