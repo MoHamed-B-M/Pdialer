@@ -94,8 +94,8 @@ fun MorphingOnboardingScreen(
     val onFinished = {
         val sharedPref = context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE)
         sharedPref.edit().putBoolean("is_first_launch", false).apply()
-        // ✅ v1.x: Navigate by passing destination object directly (NO .asDirection())
-        navigator.navigate(DialPadScreenDestination)
+        // ✅ Navigate by creating an instance of the destination
+        navigator.navigate(DialPadScreenDestination())
     }
 
     val cornerPercent by animateFloatAsState(
@@ -181,7 +181,7 @@ fun MorphingOnboardingScreen(
                     repeat(pages.size) { index ->
                         val isSelected = index == currentPage
                         val indicatorWidth by animateDpAsState(
-                            targetValue = if (isSelected) 24.dp else 8.dp, 
+                            targetValue = if (isSelected) 24.dp else 8.dp,
                             label = ""
                         )
                         Box(
@@ -190,9 +190,9 @@ fun MorphingOnboardingScreen(
                                 .size(indicatorWidth, 8.dp)
                                 .clip(RoundedCornerShape(50))
                                 .background(
-                                    if (isSelected) 
-                                        MaterialTheme.colorScheme.primary 
-                                    else 
+                                    if (isSelected)
+                                        MaterialTheme.colorScheme.primary
+                                    else
                                         MaterialTheme.colorScheme.outlineVariant
                                 )
                         )
