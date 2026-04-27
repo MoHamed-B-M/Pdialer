@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight  // ✅ Added explicit import
+// ✅ REMOVE: import androidx.compose.foundation.layout.weight  (causes internal access error)
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -94,8 +94,8 @@ fun MorphingOnboardingScreen(
     val onFinished = {
         val sharedPref = context.getSharedPreferences("pdialer_prefs", Context.MODE_PRIVATE)
         sharedPref.edit().putBoolean("is_first_launch", false).apply()
-        // ✅ Use .asDirection() for compatible navigation
-        navigator.navigate(DialPadScreenDestination.asDirection())
+        // ✅ v1.x: Navigate by passing destination object directly (NO .asDirection())
+        navigator.navigate(DialPadScreenDestination)
     }
 
     val cornerPercent by animateFloatAsState(
@@ -136,7 +136,7 @@ fun MorphingOnboardingScreen(
                 modifier = Modifier.fillMaxSize().padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // ✅ Use weight modifier with explicit import
+                // ✅ Use Modifier.weight WITHOUT importing it explicitly
                 Spacer(modifier = Modifier.weight(1f))
 
                 Box(
@@ -174,14 +174,14 @@ fun MorphingOnboardingScreen(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
-                // ✅ Use weight modifier with explicit import
+                // ✅ Same here - no explicit weight import needed
                 Spacer(modifier = Modifier.weight(1f))
 
                 Row(horizontalArrangement = Arrangement.Center) {
                     repeat(pages.size) { index ->
                         val isSelected = index == currentPage
                         val indicatorWidth by animateDpAsState(
-                            targetValue = if (isSelected) 24.dp else 8.dp,
+                            targetValue = if (isSelected) 24.dp else 8.dp, 
                             label = ""
                         )
                         Box(
@@ -190,9 +190,9 @@ fun MorphingOnboardingScreen(
                                 .size(indicatorWidth, 8.dp)
                                 .clip(RoundedCornerShape(50))
                                 .background(
-                                    if (isSelected)
-                                        MaterialTheme.colorScheme.primary
-                                    else
+                                    if (isSelected) 
+                                        MaterialTheme.colorScheme.primary 
+                                    else 
                                         MaterialTheme.colorScheme.outlineVariant
                                 )
                         )
@@ -208,7 +208,8 @@ fun MorphingOnboardingScreen(
                     if (currentPage > 0) {
                         TextButton(onClick = { currentPage-- }) { Text("Back") }
                     } else {
-                        Spacer(modifier = Modifier.weight(1f))  // ✅ Explicit weight import
+                        // ✅ Weight works when called directly on Modifier, no import needed
+                        Spacer(modifier = Modifier.weight(1f))
                     }
 
                     Button(
