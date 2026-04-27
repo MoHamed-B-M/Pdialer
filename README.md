@@ -36,6 +36,7 @@
 The UI follows the **RevoPhone** aesthetic with specific "Pdialer" optimizations:
 
 * **Morphing Buttons:** "End Call" buttons that transition from circles to rounded squares on interaction (Liquid Morph).
+* **Onboarding:** A smooth morphing onboarding screen intro
 * **Liquid Swipe:** An expressive "Swipe to Answer" component with real-time color morphing (Green for answer, Red for decline).
 * **Optimized Blur:** Dynamic background blurs adjusted to run smoothly on mid-range hardware.
 
