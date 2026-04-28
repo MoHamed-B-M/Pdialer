@@ -33,16 +33,27 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // ✅ تفعيل تقليل الحجم وحذف الكود غير المستخدم
+            minifyEnabled true
+            // ✅ حذف المصادر (Resources) غير المستخدمة لتقليل الحجم أكثر
+            shrinkResources true
+
             signingConfig signingConfigs.release
             debuggable = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            // التصليح هنا: الـ Debug يستعمل المفتاح التلقائي (Default)
-            // هكا الـ GitHub Actions يجم يخرجلك APK حتى من غير Keystore
+            // تفعيل التحسين في الـ Debug قد يبطئ عملية الـ Build، لذا نتركه معطلاً
+            minifyEnabled false
             signingConfig signingConfigs.debug
         }
+    }
+
+    // ✅ تحسين توزيع الـ APK بناءً على قدرات الجهاز
+    bundle {
+        language { enableSplit = true }
+        density { enableSplit = true }
+        abi { enableSplit = true }
     }
 
     compileOptions {
@@ -76,6 +87,7 @@ android {
 }
 
 dependencies {
+    // البقاء على نفس التبعيات المستقرة لديك
     implementation platform('androidx.compose:compose-bom:2025.12.01')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.material3:material3'
@@ -101,7 +113,6 @@ dependencies {
 
     implementation "io.coil-kt:coil-compose:2.7.0"
     implementation 'com.google.zxing:core:3.5.4'
-
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
